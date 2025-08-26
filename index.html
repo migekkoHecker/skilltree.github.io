@@ -1,10 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Skilltree</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Skill Tree</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #1e1e2f;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .tree {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  .skill {
+    margin: 10px 0;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: 0.2s;
+  }
+  .skill:hover {
+    background: #444;
+  }
+  .subskills {
+    display: none;
+    list-style-type: none;
+    padding-left: 20px;
+  }
+  .unlocked {
+    background: #2a9d8f;
+  }
+</style>
 </head>
 <body>
-  <h1>Hello World</h1>
-  <p>This is my site.</p>
+
+<ul class="tree">
+  <li class="skill" onclick="toggleSub('programming')">Programming
+    <ul id="programming" class="subskills">
+      <li class="skill unlocked">JavaScript</li>
+      <li class="skill unlocked">Python</li>
+      <li class="skill">HTML/CSS</li>
+    </ul>
+  </li>
+  <li class="skill" onclick="toggleSub('design')">Design
+    <ul id="design" class="subskills">
+      <li class="skill">Photoshop</li>
+      <li class="skill">Figma</li>
+    </ul>
+  </li>
+  <li class="skill" onclick="toggleSub('hobbies')">Hobbies
+    <ul id="hobbies" class="subskills">
+      <li class="skill">Guitar</li>
+      <li class="skill">Gaming</li>
+    </ul>
+  </li>
+</ul>
+
+<script>
+function toggleSub(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+}
+</script>
+
 </body>
 </html>
+
