@@ -9,23 +9,28 @@
     margin: 0;
     height: 100vh;
     background: #1e1e2f;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+  .tree-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
   }
   .node {
     position: absolute;
-    padding: 10px 15px;
+    padding: 12px 18px;
     border-radius: 50%;
     background: #2a9d8f;
     color: #fff;
     text-align: center;
     cursor: pointer;
-    transition: 0.2s;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.3s ease;
+    z-index: 1;
   }
-  .node:hover {
-    background: #e76f51;
+  .node.show {
+    transform: translate(-50%, -50%) scale(1);
   }
   svg {
     position: absolute;
@@ -37,22 +42,105 @@
 </head>
 <body>
 
-<!-- Center Node -->
-<div class="node" id="center" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
-  Me
+<div class="tree-container" id="treeContainer">
+  <div class="node show" id="center" style="left:50%; top:50%;">Me</div>
+  <svg id="lines"></svg>
 </div>
 
-<!-- Branch Nodes -->
-<div class="node" id="programming" style="left: 70%; top: 40%;">Programming</div>
-<div class="node" id="design" style="left: 30%; top: 40%;">Design</div>
-<div class="node" id="hobbies" style="left: 50%; top: 20%;">Hobbies</div>
+<script>
+const treeData = {
+  name: "Me",
+  x: 50,
+  y: 50,
+  children: [
+    {
+      name: "Programming",
+      children: ["JavaScript", "Python", "HTML/CSS"]
+    },
+    {
+      name: "Design",
+      children: ["Photoshop", "Figma"]
+    },
+    {
+      name: "Hobbies",
+      children: ["Guitar", "Gaming", "Photography"]
+    }
+  ]
+};
 
-<!-- SVG lines -->
-<svg>
-  <line x1="50%" y1="50%" x2="70%" y2="40%" stroke="#fff" stroke-width="2"/>
-  <line x1="50%" y1="50%" x2="30%" y2="40%" stroke="#fff" stroke-width="2"/>
-  <line x1="50%" y1="50%" x2="50%" y2="20%" stroke="#fff" stroke-width="2"/>
-</svg>
+const container = document.getElementById('treeContainer');
+const svg = document.getElementById('lines');
+
+function createNode(name, x, y) {
+  const node = document.createElement('div');
+  node.classList.add('node');
+  node.style.left = x + '%';
+  node.style.top = y + '%';
+  node.textContent = name;
+  container.appendChild(node);
+  // Animate
+  setTimeout(() => node.classList.add('show'), 50);
+  return node;
+}
+
+function connectNodes(x1, y1, x2, y2) {
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("x1", x1 + "%");
+  line.setAttribute("y1", y1 + "%");
+  line.setAttribute("x2", x2 + "%");
+  line.setAttribute("y2", y2 + "%");
+  line.setAttribute("stroke", "#fff");
+  line.setAttribute("stroke-width", "2");
+  svg.appendChild(line);
+}
+
+// Initial setup: create center node
+const centerNode = document.getElementById('center');
+
+treeData.children.forEach((branch, index, arr) => {
+  // spread branches around the center
+  const angle = (index / arr.length) * 2 * Math.PI - Math.PI/2; // top-centered
+  const radius = 25; // distance from center
+  const x = 50 + radius * Math.cos(angle);
+  const y = 50 + radius * Math.sin(angle);
+  
+  const branchNode = createNode(branch.name, x, y);
+  connectNodes(50, 50, x, y);
+
+  branchNode.addEventListener('click', () => {
+    // If already expanded, remove subskills
+    if(branchNode.subskills) {
+      branchNode.subskills.forEach(n => { container.removeChild(n); });
+      branchNode.subskillsLines.forEach(l => { svg.removeChild(l); });
+      branchNode.subskills = null;
+      branchNode.subskillsLines = null;
+      return;
+    }
+
+    const subRadius = 15;
+    branchNode.subskills = [];
+    branchNode.subskillsLines = [];
+
+    branch.children.forEach((sub, subIndex, subArr) => {
+      const subAngle = angle - Math.PI/6 + (subIndex / (subArr.length-1 || 1)) * (Math.PI/3);
+      const subX = x + subRadius * Math.cos(subAngle);
+      const subY = y + subRadius * Math.sin(subAngle);
+      const subNode = createNode(sub, subX, subY);
+      branchNode.subskills.push(subNode);
+
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", x + "%");
+      line.setAttribute("y1", y + "%");
+      line.setAttribute("x2", subX + "%");
+      line.setAttribute("y2", subY + "%");
+      line.setAttribute("stroke", "#fff");
+      line.setAttribute("stroke-width", "2");
+      svg.appendChild(line);
+      branchNode.subskillsLines.push(line);
+    });
+  });
+});
+</script>
 
 </body>
 </html>
